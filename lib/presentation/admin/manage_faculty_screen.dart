@@ -346,6 +346,7 @@ class ManageFacultyScreen extends ConsumerWidget {
                   const SizedBox(height: 6),
                   programsAsync.when(
                     data: (programs) => DropdownButtonFormField<String>(
+                      isExpanded: true,
                       value: selectedProgramId,
                       decoration: _dropdownDecor('Program'),
                       items: programs
@@ -379,6 +380,7 @@ class ManageFacultyScreen extends ConsumerWidget {
                   const SizedBox(height: 6),
                   facultyAsync.when(
                     data: (list) => DropdownButtonFormField<String>(
+                      isExpanded: true,
                       value: selectedFacultyId,
                       decoration: _dropdownDecor('Faculty Member'),
                       items: list
@@ -408,6 +410,7 @@ class ManageFacultyScreen extends ConsumerWidget {
                   ),
                   const SizedBox(height: 6),
                   DropdownButtonFormField<String>(
+                    isExpanded: true,
                     value: selectedSubjectId,
                     decoration: _dropdownDecor('Subject'),
                     items: filteredSubjects
@@ -433,6 +436,7 @@ class ManageFacultyScreen extends ConsumerWidget {
                   ),
                   const SizedBox(height: 6),
                   DropdownButtonFormField<String>(
+                    isExpanded: true,
                     value: selectedClassId,
                     decoration: _dropdownDecor('Class'),
                     items: filteredClasses

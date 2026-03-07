@@ -644,7 +644,7 @@ class _ScheduleCell extends ConsumerWidget {
         final data = details.data;
         final collegeId = ref.read(authStateProvider).user?.collegeId;
         if (collegeId != null) {
-          Future.delayed(const Duration(milliseconds: 100), () async {
+          WidgetsBinding.instance.addPostFrameCallback((_) async {
             if (slot != null && slot!.id.isNotEmpty) {
               await ref
                   .read(timetableRepositoryProvider)
@@ -672,66 +672,65 @@ class _ScheduleCell extends ConsumerWidget {
       },
       builder: (context, candidateData, rejectedData) {
         final isHover = candidateData.isNotEmpty;
+        final hasSlot = slot != null && slot!.id.isNotEmpty;
 
-        if (slot != null && slot!.id.isNotEmpty) {
-          final sub = subjects
-              .where((s) => s.id == slot!.subjectId)
-              .firstOrNull;
-          final fac = faculty
-              .where((f) => f.uid == slot!.facultyId)
-              .firstOrNull;
+        final sub = hasSlot
+            ? subjects.where((s) => s.id == slot!.subjectId).firstOrNull
+            : null;
+        final fac = hasSlot
+            ? faculty.where((f) => f.uid == slot!.facultyId).firstOrNull
+            : null;
 
-          return GestureDetector(
-            onDoubleTap: () {
-              final collegeId = ref.read(authStateProvider).user?.collegeId;
-              if (collegeId != null) {
-                Future.delayed(const Duration(milliseconds: 100), () async {
-                  await ref
-                      .read(timetableRepositoryProvider)
-                      .deleteTimetableSlot(collegeId, slot!.id);
-                });
-              }
-            },
-            child: Container(
-              padding: const EdgeInsets.all(6),
-              constraints: const BoxConstraints(minHeight: 60),
-              decoration: BoxDecoration(
-                color: const Color(0xFFEFF6FF),
-                border: Border.all(
-                  color: const Color(0xFF93C5FD).withValues(alpha: 0.5),
-                ),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    sub?.name ?? '?',
-                    style: GoogleFonts.inter(
-                      fontSize: 11,
-                      fontWeight: FontWeight.w700,
-                      color: const Color(0xFF1E3A8A),
-                    ),
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  Text(
-                    fac?.name ?? '?',
-                    style: GoogleFonts.inter(
-                      fontSize: 10,
-                      color: const Color(0xFF64748B),
-                    ),
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ],
+        return GestureDetector(
+          onDoubleTap: hasSlot
+              ? () {
+                  final collegeId = ref.read(authStateProvider).user?.collegeId;
+                  if (collegeId != null) {
+                    WidgetsBinding.instance.addPostFrameCallback((_) async {
+                      await ref
+                          .read(timetableRepositoryProvider)
+                          .deleteTimetableSlot(collegeId, slot!.id);
+                    });
+                  }
+                }
+              : null,
+          child: Container(
+            padding: const EdgeInsets.all(6),
+            constraints: const BoxConstraints(minHeight: 60),
+            decoration: BoxDecoration(
+              color: hasSlot
+                  ? const Color(0xFFEFF6FF)
+                  : (isHover ? const Color(0xFFFEF9C3) : Colors.transparent),
+              border: Border.all(
+                color: hasSlot
+                    ? const Color(0xFF93C5FD).withOpacity(0.5)
+                    : (isHover ? const Color(0xFFFBBF24) : Colors.transparent),
               ),
             ),
-          );
-        }
-
-        return Container(
-          constraints: const BoxConstraints(minHeight: 60),
-          decoration: BoxDecoration(
-            color: isHover ? const Color(0xFFFEF9C3) : Colors.transparent,
-            border: isHover ? Border.all(color: const Color(0xFFFBBF24)) : null,
+            child: hasSlot
+                ? Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        sub?.name ?? '?',
+                        style: GoogleFonts.inter(
+                          fontSize: 11,
+                          fontWeight: FontWeight.w700,
+                          color: const Color(0xFF1E3A8A),
+                        ),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      Text(
+                        fac?.name ?? '?',
+                        style: GoogleFonts.inter(
+                          fontSize: 10,
+                          color: const Color(0xFF64748B),
+                        ),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ],
+                  )
+                : null,
           ),
         );
       },
